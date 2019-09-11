@@ -29,6 +29,8 @@ public class ExcelUtil {
 
     private static final String DEFAULT_FONT_NAME = "宋体";
 
+    private static final String DEFAULT_FILE_NAME = "导出文件";
+
     private static final short DEFAULT_TITLE_FONT_HEIGHT_IN_POINTS = 10;
     private static final short DEFAULT_CONTENT_FONT_HEIGHT_IN_POINTS = 9;
 
@@ -94,27 +96,30 @@ public class ExcelUtil {
      * @return 文件名
      */
     private static String getFileNameWithSuffix(Workbook workBook, Class<?> excelEntityClazz, Map<String, Object> prefixMap, Map<String, Object> suffixMap) {
-        final Map<String, Object> defaultParamMap = new HashMap<>();
-        defaultParamMap.put(DEFAULT_DATE_FIELD_NAME, DateFormatUtils.format(new Date(), "yyyyMMddHHmmss"));
+        String fileName = DEFAULT_FILE_NAME;
+        try {
+            final Map<String, Object> defaultParamMap = new HashMap<>();
+            defaultParamMap.put(DEFAULT_DATE_FIELD_NAME, DateFormatUtils.format(new Date(), "yyyyMMddHHmmss"));
 
-        ExcelEntity excelField = excelEntityClazz.getAnnotation(ExcelEntity.class);
+            ExcelEntity excelField = excelEntityClazz.getAnnotation(ExcelEntity.class);
 
-        prefixMap = Optional.ofNullable(prefixMap)
-                .orElse(new HashMap<>());
-        prefixMap.putAll(defaultParamMap);
-        suffixMap = Optional.ofNullable(suffixMap)
-                .orElse(new HashMap<>());
-        suffixMap.putAll(defaultParamMap);
-        String fileName = NamedFormatUtil.namedFormat(excelField.prefix(), prefixMap)
-                + NamedFormatUtil.namedFormat(excelField.suffix(), suffixMap);
-        if (StringUtils.isBlank(fileName)) {
-            fileName = UUID.randomUUID().toString();
+            prefixMap = Optional.ofNullable(prefixMap)
+                    .orElse(new HashMap<>());
+            prefixMap.putAll(defaultParamMap);
+            suffixMap = Optional.ofNullable(suffixMap)
+                    .orElse(new HashMap<>());
+            suffixMap.putAll(defaultParamMap);
+            fileName = NamedFormatUtil.namedFormat(excelField.prefix(), prefixMap)
+                    + NamedFormatUtil.namedFormat(excelField.suffix(), suffixMap);
+            if (StringUtils.isBlank(fileName)) {
+                fileName = UUID.randomUUID().toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
         if (Objects.nonNull(workBook)) { /* 后缀名 */
             fileName += workBook instanceof XSSFWorkbook ? XLSX_SUFFIX : XLS_SUFFIX;
         }
-
         return fileName;
     }
 
