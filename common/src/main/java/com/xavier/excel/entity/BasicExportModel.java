@@ -1,9 +1,5 @@
 package com.xavier.excel.entity;
 
-import com.xavier.excel.annotation.ExcelField;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 
 /**
