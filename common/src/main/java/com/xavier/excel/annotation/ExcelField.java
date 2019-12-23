@@ -1,5 +1,8 @@
 package com.xavier.excel.annotation;
 
+import com.xavier.excel.mapping.DefaultMapping;
+import com.xavier.excel.mapping.Mapping;
+
 import java.lang.annotation.*;
 
 /**
@@ -32,4 +35,9 @@ public @interface ExcelField {
      * 导出顺序(非单元格位置)
      */
     int index() default 0;
+
+    /**
+     * 字段值映射
+     */
+    Class<? extends Mapping<?>> mapping() default DefaultMapping.class;
 }

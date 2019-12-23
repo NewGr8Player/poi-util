@@ -4,9 +4,12 @@ import com.xavier.excel.annotation.ExcelEntity;
 import com.xavier.excel.annotation.ExcelField;
 import com.xavier.excel.entity.BasicExportModel;
 import com.xavier.excel.entity.ExcelFieldModel;
+import com.xavier.excel.mapping.DefaultMapping;
+import com.xavier.excel.mapping.Mapping;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -71,10 +74,10 @@ public class ExcelUtil {
                                     .setCellWidth(excelField.cellWidth())
                                     .setFieldSetter(clazz.getMethod(NamedFormatUtil.SETTER_PREFIX + NamedFormatUtil.capitalize(fieldName), field.getType()))
                                     .setFieldGetter(clazz.getMethod(NamedFormatUtil.GETTER_PREFIX + NamedFormatUtil.capitalize(fieldName)))
+                                    .setValueMapping(excelField.mapping())
                     );
                 } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                    log.error("获取数据导出Entity出错");
+                    log.error("获取数据导出Entity出错", e);
                 }
             }
         }
@@ -138,7 +141,7 @@ public class ExcelUtil {
      * @param clazz            承载导出信息Entity的类类型
      * @return Workbook对象
      */
-    public static Workbook createXlsxExcel(List dataList, String currentSheetName, Class<?> clazz) {
+    public static Workbook createXlsxExcel(List<? extends BasicExportModel> dataList, String currentSheetName, Class<?> clazz) {
         return createExcel(dataList, currentSheetName, new XSSFWorkbook(), clazz);
     }
 
@@ -234,10 +237,14 @@ public class ExcelUtil {
                     for (int j = 0; j < columnSize; j++) {
                         ExcelFieldModel fieldEntity = fieldEntityList.get(j);
                         try {
+                            Object cellObject = fieldEntity.getFieldGetter().invoke(tab);
+                            String cellText = Objects.equals(fieldEntity.getValueMapping(), DefaultMapping.class)
+                                    ? String.valueOf(cellObject)
+                                    : valueMappingHandler(fieldEntity.getValueMapping(),cellObject);
                             if (mergeNeededFlag && fieldEntity.isParent()) {
-                                cellValueFiller(currentRow, j, contentStyle, String.valueOf(fieldEntity.getFieldGetter().invoke(tab)), mergeSize, sheet);
+                                cellValueFiller(currentRow, j, contentStyle, cellText, mergeSize, sheet);
                             } else {
-                                cellValueFiller(currentRow, j, contentStyle, String.valueOf(fieldEntity.getFieldGetter().invoke(tab)));
+                                cellValueFiller(currentRow, j, contentStyle, cellText);
                             }
                         } catch (IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
@@ -377,5 +384,27 @@ public class ExcelUtil {
         RegionUtil.setBottomBorderColor(IndexedColors.BLACK.index, cellRangeAddress, sheet);
         RegionUtil.setBottomBorderColor(IndexedColors.BLACK.index, cellRangeAddress, sheet);
         sheet.addMergedRegion(cellRangeAddress);
+    }
+
+    /**
+     * @param mappingClazz 映射实现类的类类型(Class Type)
+     * @param key          代码值
+     * @param <Key>        代码值的类型
+     * @return 显示的文本
+     */
+    protected static <Key> String valueMappingHandler(Class<? extends Mapping<?>> mappingClazz, Key key) {
+        String resultText = "";
+        try {
+            resultText = (String) mappingClazz.getMethod(Mapping.defaultMappingMethodName, key.getClass())
+                    .invoke(mappingClazz.isEnum()
+                                    ? mappingClazz.getEnumConstants()[0]
+                                    : mappingClazz.newInstance()
+                            , key);
+        } catch (OutOfRangeException ore) {
+            log.error("枚举异常，请确认实现后枚举内至少有一个枚举值。", ore);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            log.error("值映射实现类方法获取异常", e);
+        }
+        return resultText;
     }
 }

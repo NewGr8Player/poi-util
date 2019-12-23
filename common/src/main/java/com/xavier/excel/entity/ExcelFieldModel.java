@@ -1,5 +1,6 @@
 package com.xavier.excel.entity;
 
+import com.xavier.excel.mapping.Mapping;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -51,4 +52,9 @@ public class ExcelFieldModel {
      * set方法
      */
     private Method fieldSetter;
+
+    /**
+     * 值映射为文本信息
+     */
+    private Class<? extends Mapping<?>> valueMapping;
 }

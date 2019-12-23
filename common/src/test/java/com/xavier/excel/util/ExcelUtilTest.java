@@ -1,12 +1,14 @@
 package com.xavier.excel.util;
 
-import com.github.jsonzou.jmockdata.DataConfig;
 import com.github.jsonzou.jmockdata.JMockData;
 import com.github.jsonzou.jmockdata.MockConfig;
 import com.github.jsonzou.jmockdata.TypeReference;
-import org.apache.commons.math3.analysis.function.Max;
+import com.xavier.excel.mapping.StudentSexEnumMapping;
+import com.xavier.excel.mapping.StudentSexMapping;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+@Slf4j
 @RunWith(JUnit4.class)
 public class ExcelUtilTest {
 
@@ -70,6 +72,19 @@ public class ExcelUtilTest {
         }
     }
 
+    @Test
+    public void valueMappingHandlerTest() {
+        String male = "男";
+        String female = "女";
+        String unknown = "未知";
+        Assert.assertEquals(male, ExcelUtil.valueMappingHandler(StudentSexMapping.class, "male"));
+        Assert.assertEquals(female, ExcelUtil.valueMappingHandler(StudentSexMapping.class, "female"));
+        Assert.assertEquals(unknown, ExcelUtil.valueMappingHandler(StudentSexMapping.class, "un"));
+        Assert.assertEquals(male, ExcelUtil.valueMappingHandler(StudentSexEnumMapping.class, "male"));
+        Assert.assertEquals(female, ExcelUtil.valueMappingHandler(StudentSexEnumMapping.class, "female"));
+        Assert.assertEquals(unknown, ExcelUtil.valueMappingHandler(StudentSexEnumMapping.class, "un"));
+        log.info("PASSED!");
+    }
 
     private String genStuNo(String prefix) {
         return prefix + JMockData.mock(String.class, new MockConfig()
@@ -97,7 +112,7 @@ public class ExcelUtilTest {
                             .stringSeed("优秀", "很棒", "评价", "哈哈哈哈")
                             .sizeRange(1, 1)
                             .subConfig(Student.class, "sex")
-                            .stringSeed("男", "女")
+                            .stringSeed("male", "female", "unknown")
                             .sizeRange(1, 1)
                             .subConfig(Student.class, "score") /* 分数 */
                             .doubleRange(0.0, 100.0)
