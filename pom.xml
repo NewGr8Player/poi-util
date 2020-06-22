@@ -4,13 +4,27 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>common</module>
+        <module>common-excel</module>
+        <module>common-pdf-convertor</module>
     </modules>
     <groupId>com.xavier</groupId>
-    <artifactId>excel</artifactId>
+    <artifactId>poi-util</artifactId>
     <version>0.0.1-RELEASE</version>
     <name>poi</name>
     <description>Demo project for POI util</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <java.version>1.8</java.version>
@@ -20,6 +34,8 @@
         <lombok.version>1.18.8</lombok.version>
         <slf4j.version>1.7.28</slf4j.version>
         <commons-lang3.version>3.9</commons-lang3.version>
+        <poi.version>4.1.0</poi.version>
+        <commons-io.version>2.7</commons-io.version>
         <!-- Test scope version -->
         <junit.version>4.12</junit.version>
         <jmockdata.verison>4.1.2</jmockdata.verison>
@@ -53,6 +69,12 @@
     </repositories>
 
     <dependencies>
+        <!-- Apache poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -65,6 +87,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
+        </dependency>
+        <!-- commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
         <!-- Slf4j -->
         <dependency>
