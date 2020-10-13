@@ -37,7 +37,7 @@
         <poi.version>4.1.0</poi.version>
         <commons-io.version>2.7</commons-io.version>
         <!-- Test scope version -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jmockdata.verison>4.1.2</jmockdata.verison>
     </properties>
 
