@@ -12,7 +12,7 @@
     <artifactId>common</artifactId>
 
     <properties>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.9</logback.version>
     </properties>
 
     <dependencies>
